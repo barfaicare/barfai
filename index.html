@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BarfAI — Your Sweet AIde</title>
+<meta name="description" content="BarfAI is a WhatsApp-based task and reminder bot. Add tasks, set reminders, and stay organized — all through WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #C4704A;
+    --rose-light: #D4956E;
+    --rose-pale: #F5EDE6;
+    --rose-dark: #8B4A2E;
+    --gold: #C9A96E;
+    --cream: #FAF6F1;
+    --ink: #1A1208;
+    --muted: #8A7A6E;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.2rem 4rem;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(250, 246, 241, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(196, 112, 74, 0.12);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--rose-dark);
+    letter-spacing: 0.02em;
+  }
+
+  .nav-logo span { color: var(--rose-light); font-style: italic; }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--rose); }
+
+  .nav-cta {
+    background: var(--rose);
+    color: white !important;
+    padding: 0.55rem 1.4rem;
+    border-radius: 100px;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--rose-dark) !important; color: white !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 8rem 4rem 4rem;
+    gap: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(196, 112, 74, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--rose-pale);
+    color: var(--rose);
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--rose);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--rose);
+    color: white;
+    text-decoration: none;
+    padding: 0.9rem 2rem;
+    border-radius: 100px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(196, 112, 74, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: var(--rose-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(196, 112, 74, 0.4);
+  }
+
+  .btn-secondary {
+    color: var(--rose);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: gap 0.2s;
+  }
+
+  .btn-secondary:hover { gap: 0.7rem; }
+
+  /* ── PHONE MOCKUP ── */
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .phone {
+    width: 280px;
+    background: var(--ink);
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 40px 80px rgba(26, 18, 8, 0.25), 0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+    transform: rotate(2deg);
+    animation: float 4s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: rotate(2deg) translateY(0); }
+    50% { transform: rotate(2deg) translateY(-12px); }
+  }
+
+  .phone-screen {
+    background: #ECE5DD;
+    border-radius: 30px;
+    overflow: hidden;
+    min-height: 520px;
+  }
+
+  .phone-header {
+    background: #075E54;
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .phone-avatar {
+    width: 36px; height: 36px;
+    background: var(--rose);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .phone-name {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .phone-status {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.7rem;
+  }
+
+  .messages {
+    padding: 1rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .msg {
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    max-width: 85%;
+    animation: msgIn 0.4s ease;
+  }
+
+  .msg-in {
+    background: white;
+    align-self: flex-start;
+    border-radius: 0 10px 10px 10px;
+  }
+
+  .msg-out {
+    background: #DCF8C6;
+    align-self: flex-end;
+    border-radius: 10px 10px 0 10px;
+  }
+
+  .msg-time {
+    font-size: 0.6rem;
+    color: #999;
+    display: block;
+    text-align: right;
+    margin-top: 0.2rem;
+  }
+
+  /* Decorative elements */
+  .hero-deco {
+    position: absolute;
+    width: 120px; height: 120px;
+    border: 1px solid rgba(196, 112, 74, 0.2);
+    border-radius: 50%;
+    top: 10%;
+    right: 5%;
+    animation: spin 20s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── SECTIONS ── */
+  section { padding: 6rem 4rem; }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 3.5vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title em { font-style: italic; color: var(--rose); }
+
+  /* ── HOW IT WORKS ── */
+  .how-it-works {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 32px;
+    margin: 0 2rem;
+    padding: 5rem;
+  }
+
+  .how-it-works .section-label { color: var(--gold); }
+  .how-it-works .section-title { color: var(--cream); }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    margin-top: 3rem;
+  }
+
+  .step {
+    position: relative;
+  }
+
+  .step-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 300;
+    color: rgba(201, 169, 110, 0.3);
+    line-height: 1;
+    margin-bottom: 1rem;
+  }
+
+  .step h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 0.7rem;
+  }
+
+  .step p {
+    font-size: 0.9rem;
+    color: rgba(250, 246, 241, 0.55);
+    line-height: 1.6;
+  }
+
+  .step-example {
+    margin-top: 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 12px;
+    padding: 0.7rem 1rem;
+    font-size: 0.82rem;
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  /* ── FEATURES ── */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .feature-card {
+    background: white;
+    border: 1px solid rgba(196, 112, 74, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .feature-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(196, 112, 74, 0.12); }
+  .feature-card:hover::before { transform: scaleX(1); }
+
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card p {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── EXAMPLES ── */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+
+  .example {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid rgba(196, 112, 74, 0.08);
+  }
+
+  .example-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ex-msg {
+    padding: 0.5rem 0.9rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 90%;
+  }
+
+  .ex-out {
+    background: #DCF8C6;
+    align-self: flex-end;
+    border-radius: 12px 12px 2px 12px;
+    color: #1a1a1a;
+  }
+
+  .ex-in {
+    background: var(--rose-pale);
+    align-self: flex-start;
+    border-radius: 2px 12px 12px 12px;
+    color: var(--ink);
+  }
+
+  .example-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* ── PRIVACY & TERMS ── */
+  .legal-section {
+    background: var(--rose-pale);
+    border-radius: 32px;
+    margin: 0 2rem;
+    padding: 5rem;
+  }
+
+  .legal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 3rem;
+  }
+
+  .legal-col h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--rose-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  .legal-col p, .legal-col li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 0.8rem;
+  }
+
+  .legal-col ul { padding-left: 1.2rem; }
+  .legal-col li { margin-bottom: 0.4rem; }
+
+  /* ── CONTACT ── */
+  .contact-section {
+    text-align: center;
+    padding: 6rem 4rem;
+  }
+
+  .contact-card {
+    background: white;
+    border-radius: 24px;
+    padding: 4rem;
+    max-width: 600px;
+    margin: 3rem auto 0;
+    box-shadow: 0 8px 40px rgba(196, 112, 74, 0.08);
+    border: 1px solid rgba(196, 112, 74, 0.1);
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(196, 112, 74, 0.1);
+    text-align: left;
+  }
+
+  .contact-item:last-child { border-bottom: none; }
+
+  .contact-icon { font-size: 1.4rem; }
+
+  .contact-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .contact-value {
+    font-size: 0.95rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .contact-value:hover { color: var(--rose); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: rgba(250, 246, 241, 0.5);
+    text-align: center;
+    padding: 3rem 4rem;
+    font-size: 0.85rem;
+  }
+
+  footer .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 1rem;
+  }
+
+  footer p { line-height: 1.8; }
+  footer a { color: var(--gold); text-decoration: none; }
+  footer a:hover { color: var(--rose-light); }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  /* ── WHATSAPP FLOAT BUTTON ── */
+  .wa-float {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    background: #25D366;
+    color: white;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+    transition: all 0.25s;
+    z-index: 999;
+    animation: waBounce 3s ease-in-out infinite;
+  }
+
+  @keyframes waBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  .wa-float:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background: var(--rose-pale);
+    padding: 3rem 4rem;
+    display: flex;
+    justify-content: center;
+    gap: 6rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--rose);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 6rem 1.5rem 3rem; gap: 3rem; }
+    .hero-visual { order: -1; }
+    .phone { width: 240px; }
+    section { padding: 4rem 1.5rem; }
+    .how-it-works, .legal-section { margin: 0; border-radius: 0; padding: 3rem 1.5rem; }
+    .steps { grid-template-columns: 1fr; }
+    .features { grid-template-columns: 1fr; }
+    .examples-grid { grid-template-columns: 1fr; }
+    .legal-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .stats-bar { gap: 3rem; padding: 2rem; }
+    .contact-card { padding: 2rem 1.5rem; }
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Barf<span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#privacy">Privacy</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://wa.me/919121001550" class="nav-cta">Try it free →</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">🍬 Launching in India</div>
+    <h1>Your tasks.<br>Your WhatsApp.<br><em>Your Sweet AIde.</em></h1>
+    <p class="hero-sub">
+      Stop switching apps. BarfAI is a WhatsApp bot that remembers tasks, 
+      sets reminders for you <em>and</em> others, and keeps you organized — 
+      all through the app you already use all day.
+    </p>
+    <div class="hero-actions">
+      <a href="https://wa.me/919121001550?text=hi" class="btn-primary">
+        💬 Say "hi" to BarfAI
+      </a>
+      <a href="#how" class="btn-secondary">
+        See how it works →
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-deco"></div>
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div class="phone-avatar">🍬</div>
+          <div>
+            <div class="phone-name">BarfAI</div>
+            <div class="phone-status">Your Sweet AIde</div>
+          </div>
+        </div>
+        <div class="messages">
+          <div class="msg msg-out">Buy milk tomorrow<span class="msg-time">9:41 PM ✓✓</span></div>
+          <div class="msg msg-in">📌 Task added: <strong>Buy milk</strong><br>📅 Due: Tomorrow<br>⏰ Set a reminder?<span class="msg-time">9:41 PM</span></div>
+          <div class="msg msg-out">Yes, at 9am<span class="msg-time">9:41 PM ✓✓</span></div>
+          <div class="msg msg-in">⏰ Reminder set!<br>Task: Buy milk<br>Time: Tomorrow, 09:00 am<span class="msg-time">9:41 PM</span></div>
+          <div class="msg msg-out">Remind avisa to call bank at 5pm<span class="msg-time">9:42 PM ✓✓</span></div>
+          <div class="msg msg-in">📌 Reminder for Avisa<br>📝 Call bank<br>⏰ Today, 05:00 pm<br>Send? 'yes' or 'no'<span class="msg-time">9:42 PM</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat fade-up">
+    <div class="stat-num">0</div>
+    <div class="stat-label">App downloads needed</div>
+  </div>
+  <div class="stat fade-up">
+    <div class="stat-num">∞</div>
+    <div class="stat-label">Tasks & reminders</div>
+  </div>
+  <div class="stat fade-up">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Languages (EN + HI)</div>
+  </div>
+  <div class="stat fade-up">
+    <div class="stat-num">24/7</div>
+    <div class="stat-label">Always available</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="how">
+  <div class="how-it-works">
+    <div class="section-label">How it works</div>
+    <div class="section-title">Three steps.<br><em>Zero friction.</em></div>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-num">01</div>
+        <h3>Save the number</h3>
+        <p>Save +91 91210 01550 on your WhatsApp. That's your only setup.</p>
+        <div class="step-example">No app. No login. No password.</div>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">02</div>
+        <h3>Type naturally</h3>
+        <p>Tell BarfAI what's on your mind, exactly as you'd text a friend.</p>
+        <div class="step-example">"Call doctor tomorrow at 10am"</div>
+      </div>
+      <div class="step fade-up">
+        <div class="step-num">03</div>
+        <h3>Get reminded</h3>
+        <p>BarfAI remembers so you don't have to. Reminders arrive on WhatsApp.</p>
+        <div class="step-example">"🔔 REMINDER: Call doctor"</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-label">Features</div>
+  <div class="section-title">Everything you need.<br><em>Nothing you don't.</em></div>
+
+  <div class="features">
+    <div class="feature-card fade-up">
+      <div class="feature-icon">📝</div>
+      <h3>Natural task adding</h3>
+      <p>Type like you text. "Buy groceries #shopping urgent" — BarfAI understands categories, priorities and dates automatically.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">⏰</div>
+      <h3>Smart reminders</h3>
+      <p>Set reminders for specific times, multiple times at once, or daily for days. "At 9am, 2pm and 6pm" — three reminders, one message.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">👥</div>
+      <h3>Remind others</h3>
+      <p>Send reminders to family and friends via WhatsApp. "Remind mom to take medicines at 8am" — they receive it on their WhatsApp.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">🔁</div>
+      <h3>Daily recurring reminders</h3>
+      <p>Set habits and routines. "Daily at 7am for 30 days" — perfect for medicines, workouts, and daily habits.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">😴</div>
+      <h3>Snooze & dismiss</h3>
+      <p>Not ready? Snooze for 15 min, 1 hour, 3 hours or till tomorrow morning. Mark done when complete.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">📊</div>
+      <h3>Daily summaries</h3>
+      <p>Get a morning briefing and evening summary of your tasks. Know exactly what's pending and what you've achieved.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">🌐</div>
+      <h3>Hindi & English</h3>
+      <p>Switch languages anytime. Send "hindi" or "english" — BarfAI responds in your preferred language from that point on.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">📂</div>
+      <h3>Categories & priorities</h3>
+      <p>Organise with hashtags (#work, #home, #health) and priorities (urgent, high, low). Filter and focus on what matters.</p>
+    </div>
+    <div class="feature-card fade-up">
+      <div class="feature-icon">🔍</div>
+      <h3>Search & insights</h3>
+      <p>Find any task instantly. Get smart insights about your productivity patterns — what you complete, what you snooze.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section style="padding-top: 0;">
+  <div class="section-label">See it in action</div>
+  <div class="section-title">Real conversations.<br><em>Real results.</em></div>
+  <div class="examples-grid">
+    <div class="example fade-up">
+      <div class="example-label">📌 Adding a task with deadline</div>
+      <div class="example-chat">
+        <div class="ex-msg ex-out">Pay electricity bill by 25th</div>
+        <div class="ex-msg ex-in">📌 Task added: <strong>Pay electricity bill</strong><br>📅 Due: 25 Mar 2026<br>⏰ Set a reminder?</div>
+        <div class="ex-msg ex-out">Yes, at 6pm on 24th</div>
+        <div class="ex-msg ex-in">⏰ Reminder set for 24 Mar at 6:00 PM</div>
+      </div>
+    </div>
+    <div class="example fade-up">
+      <div class="example-label">👥 Reminding someone else</div>
+      <div class="example-chat">
+        <div class="ex-msg ex-out">Remind sapna to go to bank tomorrow</div>
+        <div class="ex-msg ex-in">📌 Reminder for Sapna<br>📝 Go to bank<br>⏰ Tomorrow morning<br>Send? 'yes' or 'no'</div>
+        <div class="ex-msg ex-out">Yes</div>
+        <div class="ex-msg ex-in">✅ Reminder scheduled! Sapna will receive it tomorrow.</div>
+      </div>
+    </div>
+    <div class="example fade-up">
+      <div class="example-label">🔁 Daily medicine reminder</div>
+      <div class="example-chat">
+        <div class="ex-msg ex-out">Remind me to take medicines daily at 8am for 30 days</div>
+        <div class="ex-msg ex-in">⏰ Daily reminder set!<br>📌 Take medicines<br>🕐 Every day at: 08:00 AM<br>📅 For the next 30 days</div>
+      </div>
+    </div>
+    <div class="example fade-up">
+      <div class="example-label">⚡ Multiple reminders at once</div>
+      <div class="example-chat">
+        <div class="ex-msg ex-out">Remind me to take water at 1pm, 3pm and 6pm</div>
+        <div class="ex-msg ex-in">⏰ 3 Reminders set!<br>📌 Take water<br>1. Today, 01:00 PM<br>2. Today, 03:00 PM<br>3. Today, 06:00 PM</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRIVACY & TERMS -->
+<div id="privacy">
+  <div class="legal-section">
+    <div class="section-label">Trust & transparency</div>
+    <div class="section-title">Privacy Policy &amp;<br><em>Terms of Use</em></div>
+
+    <div class="legal-grid">
+      <div class="legal-col">
+        <h3>Privacy Policy</h3>
+        <p><strong>What we collect</strong></p>
+        <ul>
+          <li>Your WhatsApp phone number (account ID)</li>
+          <li>Tasks and reminders you create</li>
+          <li>Language preference</li>
+        </ul>
+        <p><strong>What we don't collect</strong></p>
+        <ul>
+          <li>Your name or personal identity</li>
+          <li>Location data</li>
+          <li>Contact lists</li>
+          <li>Any financial information</li>
+        </ul>
+        <p><strong>How we use it</strong></p>
+        <ul>
+          <li>To send you reminders you've set</li>
+          <li>To store your tasks temporarily</li>
+          <li>To improve the bot's responses</li>
+        </ul>
+        <p><strong>Data storage</strong><br>
+        Your data is stored securely on Google Firebase servers (Asia region). We do not sell, share, or transfer your data to any third party.</p>
+        <p><strong>Data deletion</strong><br>
+        Send <em>"delete my account"</em> to the bot at any time to permanently delete all your data. You can also email us at barfaicare@gmail.com.</p>
+        <p style="font-size:0.78rem; color:#aaa; margin-top:1rem;">Last updated: March 2026</p>
+      </div>
+
+      <div class="legal-col">
+        <h3>Terms of Use</h3>
+        <p><strong>Acceptable use</strong></p>
+        <ul>
+          <li>Personal task and reminder management</li>
+          <li>Sending reminders to others with their consent</li>
+          <li>Using in Hindi or English</li>
+        </ul>
+        <p><strong>Prohibited</strong></p>
+        <ul>
+          <li>Spamming others with unwanted reminders</li>
+          <li>Using for illegal or harmful purposes</li>
+          <li>Attempting to hack or misuse the service</li>
+          <li>Harassment of any kind</li>
+        </ul>
+        <p><strong>Service availability</strong><br>
+        BarfAI is provided free of charge. We strive for 99% uptime but do not guarantee uninterrupted service.</p>
+        <p><strong>Unsubscribe</strong><br>
+        Send <em>"stop"</em> or <em>"unsubscribe"</em> to the bot to stop all messages. Your data will be retained for 30 days then deleted.</p>
+        <p><strong>Changes</strong><br>
+        We may update these terms. Continued use after changes constitutes acceptance.</p>
+        <p><strong>Contact</strong><br>
+        For questions or concerns: barfaicare@gmail.com</p>
+        <p style="font-size:0.78rem; color:#aaa; margin-top:1rem;">Last updated: March 2026 · Operated by BarfAI (Barfai Tech), Hyderabad, India</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section">
+  <div class="section-label">Get in touch</div>
+  <div class="section-title">We're here <em>for you.</em></div>
+  <p style="color: var(--muted); max-width: 480px; margin: 0 auto; font-size: 0.95rem; line-height: 1.7;">
+    Questions, feedback, or just want to say hi — reach us through any of these channels.
+  </p>
+
+  <div class="contact-card">
+    <div class="contact-item">
+      <div class="contact-icon">💬</div>
+      <div>
+        <div class="contact-label">WhatsApp (the bot)</div>
+        <a href="https://wa.me/919121001550" class="contact-value">+91 91210 01550</a>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">📧</div>
+      <div>
+        <div class="contact-label">Email</div>
+        <a href="mailto:barfaicare@gmail.com" class="contact-value">barfaicare@gmail.com</a>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">🌐</div>
+      <div>
+        <div class="contact-label">Website</div>
+        <a href="https://barfai.in" class="contact-value">barfai.in</a>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="contact-label">Location</div>
+        <span class="contact-value">Hyderabad, Telangana, India</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🍬 BarfAI</div>
+  <p><em>Your Sweet AIde</em></p>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#privacy">Privacy Policy</a>
+    <a href="#privacy">Terms of Use</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <p>© 2026 BarfAI (Barfai Tech) · Hyderabad, India · <a href="mailto:barfaicare@gmail.com">barfaicare@gmail.com</a></p>
+  <p style="margin-top: 0.5rem; font-size: 0.8rem;">Built with ❤️ in India · Powered by Meta WhatsApp Cloud API & Google Firebase</p>
+</footer>
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/919121001550?text=hi" class="wa-float" title="Chat on WhatsApp">💬</a>
+
+<script>
+  // Scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Smooth nav background
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    nav.style.boxShadow = window.scrollY > 50
+      ? '0 2px 20px rgba(26,18,8,0.08)'
+      : 'none';
+  });
+</script>
+</body>
+</html>
